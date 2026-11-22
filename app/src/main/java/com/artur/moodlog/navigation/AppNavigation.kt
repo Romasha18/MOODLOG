@@ -1,3 +1,4 @@
+
 package com.artur.moodlog.navigation
 
 import androidx.compose.foundation.layout.padding
@@ -20,6 +21,7 @@ import com.artur.moodlog.viewmodel.MoodViewModelFactory
 
 @Composable
 fun AppNavigation(repository: MoodRepository) {
+
     val navController = rememberNavController()
 
     val viewModel: MoodViewModel = viewModel(
@@ -51,10 +53,14 @@ fun AppNavigation(repository: MoodRepository) {
             startDestination = "today",
             modifier = Modifier.padding(innerPadding)
         ) {
+
             composable("today") {
                 HomeScreen(
-                    onSaveMood = { mood, note ->
-                        viewModel.saveMood(mood, note)
+                    onSaveDayMood = { mood, note ->
+                        viewModel.saveDayMood(mood, note)
+                    },
+                    onSaveMomentMood = { mood, note ->
+                        viewModel.saveMomentMood(mood, note)
                     }
                 )
             }

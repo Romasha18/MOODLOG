@@ -77,7 +77,7 @@ fun ProfileScreen() {
         Spacer(modifier = Modifier.height(25.dp))
 
         Text(
-            text = "Версия приложения: 1.0.0",
+            text = "Версия приложения: 2.0.0",
             color = Color.Gray,
             fontSize = 13.sp
         )

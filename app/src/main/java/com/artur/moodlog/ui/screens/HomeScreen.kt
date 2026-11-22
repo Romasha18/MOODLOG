@@ -1,8 +1,10 @@
+
 package com.artur.moodlog.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -26,11 +29,15 @@ import java.util.Locale
 
 @Composable
 fun HomeScreen(
-    onSaveMood: (Int, String) -> Unit
+    onSaveDayMood: (Int, String) -> Unit,
+    onSaveMomentMood: (Int, String) -> Unit
 ) {
     var selectedMood by remember { mutableIntStateOf(0) }
     var note by remember { mutableStateOf("") }
     var saved by remember { mutableStateOf(false) }
+
+    // Выбранный тип записи
+    var isDayMode by remember { mutableStateOf(true) }
 
     val today = LocalDate.now().format(
         DateTimeFormatter.ofPattern(
@@ -76,12 +83,52 @@ fun HomeScreen(
             color = Color.Gray
         )
 
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(25.dp))
 
         Text(
-            text = "Выбери настроение",
+            text = "Тип записи",
             fontSize = 18.sp,
             color = Color.White
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            FilterChip(
+                selected = isDayMode,
+                onClick = {
+                    isDayMode = true
+                    saved = false
+                },
+                label = {
+                    Text("За день")
+                }
+            )
+
+            FilterChip(
+                selected = !isDayMode,
+                onClick = {
+                    isDayMode = false
+                    saved = false
+                },
+                label = {
+                    Text("Сейчас")
+                }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            text = if (isDayMode)
+                "Общая оценка твоего дня"
+            else
+                "Как ты чувствуешь себя прямо сейчас?",
+            fontSize = 14.sp,
+            color = Color.LightGray
         )
 
         Spacer(modifier = Modifier.height(18.dp))
@@ -94,10 +141,13 @@ fun HomeScreen(
             }
         )
 
-        Spacer(modifier = Modifier.height(35.dp))
+        Spacer(modifier = Modifier.height(30.dp))
 
         Text(
-            text = "Хочешь что-нибудь рассказать?",
+            text = if (isDayMode)
+                "Как прошёл твой день?"
+            else
+                "Что происходит сейчас?",
             fontSize = 18.sp,
             color = Color.White
         )
@@ -114,7 +164,10 @@ fun HomeScreen(
                 .fillMaxWidth()
                 .height(140.dp),
             placeholder = {
-                Text("Запиши свои мысли...", color = Color.Gray)
+                Text(
+                    "Запиши свои мысли...",
+                    color = Color.Gray
+                )
             },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = Color.White,
@@ -131,8 +184,15 @@ fun HomeScreen(
         Button(
             onClick = {
                 if (selectedMood != 0) {
-                    onSaveMood(selectedMood, note)
+                    if (isDayMode) {
+                        onSaveDayMood(selectedMood, note)
+                    } else {
+                        onSaveMomentMood(selectedMood, note)
+                    }
+
                     saved = true
+                    selectedMood = 0
+                    note = ""
                 }
             },
             modifier = Modifier
@@ -144,7 +204,10 @@ fun HomeScreen(
             shape = RoundedCornerShape(16.dp)
         ) {
             Text(
-                text = "Сохранить настроение",
+                text = if (isDayMode)
+                    "Сохранить оценку дня"
+                else
+                    "Зафиксировать настроение",
                 fontSize = 16.sp
             )
         }
@@ -153,7 +216,7 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "✓ Настроение сохранено!",
+                text = "✓ Запись сохранена!",
                 color = Color(0xFF81C784),
                 fontSize = 14.sp
             )
